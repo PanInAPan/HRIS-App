@@ -2,33 +2,37 @@ import 'dart:convert';
 import '../../../services/api_service.dart';
 
 class EmployeeService {
-  static Future<Map<String, dynamic>> getEmployees({
-    int page = 1,
-    int limit = 10,
-    String? search,
-    String? status,
-    int? departmentId,
-    String sortBy = 'fullName',
-    String sortOrder = 'asc',
-  }) async {
-    final params = {
-      'page': page.toString(),
-      'limit': limit.toString(),
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (status != null && status.isNotEmpty) 'status': status,
-      if (departmentId != null) 'departmentId': departmentId.toString(),
-      'sortBy': sortBy,
-      'sortOrder': sortOrder,
-    };
+  // Di employee_service.dart - UPDATE DENGAN HELPER METHOD
+static Future<Map<String, dynamic>> getEmployees({
+  int page = 1,
+  int limit = 10,
+  String? search,
+  String? status,
+  int? departmentId,
+  String sortBy = 'fullName',
+  String sortOrder = 'asc',
+}) async {
+  final params = {
+    'page': page.toString(),
+    'limit': limit.toString(),
+    if (search != null && search.isNotEmpty) 'search': search,
+    if (status != null && status.isNotEmpty) 'status': status,
+    if (departmentId != null) 'departmentId': departmentId.toString(),
+    'sortBy': sortBy,
+    'sortOrder': sortOrder,
+  };
 
-    final response = await ApiService.get('/employees?${_buildQueryString(params)}');
-    
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load employees: ${response.statusCode}');
-    }
+  final queryString = ApiService.buildQueryString(params);
+  final response = await ApiService.get('/employees?$queryString');
+  
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Failed to load employees: ${response.statusCode}');
   }
+}
+
+// HAPUS method _buildQueryString yang lama karena sudah ada di ApiService
 
   static Future<Map<String, dynamic>> getEmployee(int id) async {
     final response = await ApiService.get('/employees/$id');
@@ -100,15 +104,5 @@ class EmployeeService {
       final error = json.decode(response.body);
       throw Exception(error['message'] ?? 'Failed to delete employee');
     }
-  }
-
-  static String _buildQueryString(Map<String, String> params) {
-    final List<String> queryParams = [];
-    params.forEach((key, value) {
-      if (value.isNotEmpty) {
-        queryParams.add('$key=${Uri.encodeQueryComponent(value)}');
-      }
-    });
-    return queryParams.join('&');
   }
 }
