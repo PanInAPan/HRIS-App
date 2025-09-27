@@ -1,5 +1,6 @@
-// lib/main.dart - Updated
+// lib/main.dart - UPDATE DENGAN EMPLOYEE PROVIDER
 import 'package:flutter/material.dart';
+import 'package:human_resource_information_system_application/providers/employee_provider.dart';
 import 'package:human_resource_information_system_application/screens/dashboard_screen.dart';
 import 'package:human_resource_information_system_application/screens/login_screen.dart';
 import 'package:provider/provider.dart';
@@ -13,8 +14,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthProvider(),
+    return MultiProvider( // ← GUNAKAN MULTI PROVIDER
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => EmployeeProvider()), // ← TAMBAH INI
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'HRIS App',
