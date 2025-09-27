@@ -20,7 +20,7 @@ class EmployeeProvider with ChangeNotifier {
 
   // Load employees dengan pagination
   Future<void> loadEmployees({
-    int page = 1,
+    int? page = 1,
     int limit = 10,
     String? search,
     String? status,
@@ -89,6 +89,23 @@ class EmployeeProvider with ChangeNotifier {
     }
   }
 
+  Future<void> loadEmployeeStats() async {
+    try {
+      _setLoading(true);
+      _error = null;
+
+      // final response = await EmployeeService.getEmployeeStats();
+      // Simpan stats di state jika perlu
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Load my profile
   Future<void> loadMyProfile() async {
     try {
@@ -115,7 +132,7 @@ class EmployeeProvider with ChangeNotifier {
       _error = null;
 
       await EmployeeService.createEmployee(data);
-      
+
       // Reload list setelah create
       await loadEmployees();
       notifyListeners();
@@ -135,12 +152,12 @@ class EmployeeProvider with ChangeNotifier {
       _error = null;
 
       await EmployeeService.updateEmployee(id, data);
-      
+
       // Update local data
       if (_selectedEmployee?.id == id) {
         await loadEmployee(id);
       }
-      
+
       // Reload list
       await loadEmployees();
       notifyListeners();
@@ -160,7 +177,7 @@ class EmployeeProvider with ChangeNotifier {
       _error = null;
 
       await EmployeeService.deleteEmployee(id);
-      
+
       // Remove from local list
       _employees.removeWhere((emp) => emp.id == id);
       notifyListeners();
@@ -180,12 +197,12 @@ class EmployeeProvider with ChangeNotifier {
       _error = null;
 
       await EmployeeService.updateEmployeeStatus(id, status);
-      
+
       // Update local data
       if (_selectedEmployee?.id == id) {
         await loadEmployee(id);
       }
-      
+
       // Update in list
       final index = _employees.indexWhere((emp) => emp.id == id);
       if (index != -1) {
@@ -252,8 +269,10 @@ extension EmployeeExtension on Employee {
       joinDate: joinDate ?? this.joinDate,
       status: status ?? this.status,
       emergencyContactName: emergencyContactName ?? this.emergencyContactName,
-      emergencyContactPhone: emergencyContactPhone ?? this.emergencyContactPhone,
-      emergencyContactRelation: emergencyContactRelation ?? this.emergencyContactRelation,
+      emergencyContactPhone:
+          emergencyContactPhone ?? this.emergencyContactPhone,
+      emergencyContactRelation:
+          emergencyContactRelation ?? this.emergencyContactRelation,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       user: user ?? this.user,
